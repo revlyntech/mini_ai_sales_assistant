@@ -16,7 +16,7 @@ def scrape_website(url):
         if meta:
             meta_desc = meta.get("content", "")
 
-        text = soup.get_text()[:2000]
+        text = soup.get_text(" ", strip=True)[:800]
 
         return {
             "title": title,
