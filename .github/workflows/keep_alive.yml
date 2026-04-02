@@ -2,7 +2,7 @@ name: Keep Streamlit Awake
 
 on:
   schedule:
-    - cron: "0 */6 * * *"
+    - cron: "*/30 * * * *"
   workflow_dispatch:
 
 jobs:
@@ -10,4 +10,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Ping Streamlit App
-        run: curl -I https://mini-ai-sales-assistant.streamlit.app/
+        run: curl https://mini-ai-sales-assistant.streamlit.app/
