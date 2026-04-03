@@ -12,11 +12,17 @@ client = OpenAI(
 def call_llm(prompt):
     try:
         response = client.chat.completions.create(
-            model="qwen/qwen3-32b",
-            messages=[{"role": "user", "content": prompt}],
-            timeout=20
+            model="openrouter/auto",
+            messages=[
+                {"role": "user", "content": prompt}
+            ],
+            timeout=40
         )
-        return response.choices[0].message.content
+
+        content = response.choices[0].message.content
+        print("✅ OPENROUTER RESPONSE:", content[:300])
+        return content
+
     except Exception as e:
-        print("LLM Error:", e)
+        print("❌ OPENROUTER REAL ERROR:", str(e))
         return None
