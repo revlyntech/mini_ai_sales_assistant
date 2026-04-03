@@ -11,25 +11,25 @@ def run_agent(input_data, custom_icp=None):
     print("Scraping website...")
     enriched = scrape_website(website)
 
-    print("Generating summary...")
+    print("Generating summary + outreach...")
     summary_data = generate_summary(enriched, company)
 
     print("Checking ICP...")
-    icp_result = check_icp(enriched, summary_data, custom_icp)
-
-    print("Generating email...")
-    email = generate_email(company, summary_data["company_summary"])
+    icp_result = check_icp(enriched, summary_data)
 
     return {
-        "company_summary": summary_data["company_summary"],
-        "industry": summary_data.get("industry", "Unknown"),
-        "estimated_size": summary_data.get("estimated_size", "Unknown"),
-        "location": summary_data.get("location", "Unknown"),
-        "revenue_range": summary_data.get("revenue_range", "Unknown"),
-        "icp_fit": icp_result["icp_fit"],
-        "icp_score": icp_result["icp_score"],
-        "reason": icp_result["reason"],
-        "outreach_email": email
+        "company_summary": summary_data.get("company_summary", "No summary"),
+        "industry": summary_data.get("industry", "SaaS"),
+        "estimated_size": summary_data.get("estimated_size", "20-50 employees"),
+        "location": summary_data.get("location", "United States"),
+        "revenue_range": summary_data.get("revenue_range", "$5M-$50M"),
+        "icp_fit": icp_result.get("icp_fit", "No"),
+        "icp_score": icp_result.get("icp_score", 0),
+        "reason": icp_result.get("reason", "No reasoning available"),
+        "outreach_email": summary_data.get(
+            "outreach_email",
+            f"Hi {company} team,\n\nWould love to connect."
+        )
     }
 
 
@@ -39,16 +39,5 @@ if __name__ == "__main__":
         "website": "https://www.remitap.com/"
     }
 
-    default_icp = {
-        "industry": "SaaS",
-        "min_size": 10,
-        "max_size": 50,
-        "location": "US",
-        "min_revenue": 5,
-        "max_revenue": 50
-    }
-
-    result = run_agent(input_data, default_icp)
-
-    print("\n✅ FINAL OUTPUT:\n")
-    print(json.dumps(result, indent=2, ensure_ascii=False))
+    result = run_agent(input_data)
+    print(json.dumps(result, indent=2))
