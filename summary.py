@@ -1,26 +1,28 @@
 from llm import call_llm
 import json
+import re
 
 
-def clean_response(response):
-    if not response:
-        return ""
-    return response.replace("```json", "").replace("```", "").strip()
+def extract_json(text):
+    match = re.search(r"\{.*\}", text, re.DOTALL)
+    if match:
+        return match.group(0)
+    return None
 
 
 def generate_summary(data, company_name="Company"):
     content = data.get("content", "")[:500]
 
     prompt = f"""
-    You are a senior B2B SDR assistant.
-
-    Analyze this website content and return ONLY valid JSON.
+    Return ONLY valid JSON.
+    No markdown.
+    No explanation.
+    No extra text.
 
     Company: {company_name}
     Website content:
     {content}
 
-    JSON format:
     {{
       "company_summary": "...",
       "industry": "...",
@@ -29,44 +31,37 @@ def generate_summary(data, company_name="Company"):
       "revenue_range": "...",
       "outreach_email": "..."
     }}
-
-    Rules:
-    - summary under 50 words
-    - mention one business capability in email
-    - include clear CTA
-    - email under 80 words
-    - return plain JSON only
     """
 
     response = call_llm(prompt)
 
-    fallback = {
-        "company_summary": "SaaS company offering digital products.",
-        "industry": "SaaS",
-        "estimated_size": "20-50 employees",
-        "location": "United States",
-        "revenue_range": "$5M-$50M",
-        "outreach_email": (
-            f"Hi {company_name} team,\n\n"
-            f"I noticed your strong platform capabilities and focus on business efficiency. "
-            f"RevOps Central helps SaaS teams improve lead qualification and GTM workflows.\n\n"
-            f"Would you be open to a quick 15-minute conversation next week?"
-        )
-    }
-
     if not response:
-        return fallback
-
-    response = clean_response(response)
+        return {
+            "company_summary": "Unable to analyze company",
+            "industry": "Unknown",
+            "estimated_size": "Unknown",
+            "location": "Unknown",
+            "revenue_range": "Unknown",
+            "outreach_email": f"Hi {company_name} team, would love to connect."
+        }
 
     try:
-        parsed = json.loads(response)
-
-        for key, value in fallback.items():
-            if key not in parsed or not parsed[key]:
-                parsed[key] = value
-
-        return parsed
+        return json.loads(response)
 
     except Exception:
-        return fallback
+        extracted = extract_json(response)
+
+        if extracted:
+            try:
+                return json.loads(extracted)
+            except Exception:
+                pass
+
+    return {
+        "company_summary": data.get("meta_description", "Unable to analyze company"),
+        "industry": "Unknown",
+        "estimated_size": "Unknown",
+        "location": "Unknown",
+        "revenue_range": "Unknown",
+        "outreach_email": f"Hi {company_name} team, would love to connect."
+    }
