@@ -13,7 +13,7 @@ client = OpenAI(
 def call_llm(prompt):
     try:
         response = client.chat.completions.create(
-            model="stepfun-ai/step-3.5-flash",
+            model="qwen/qwen3-32b",
             messages=[
                 {"role": "user", "content": prompt}
             ],
