@@ -1,6 +1,5 @@
 from enrichment import scrape_website
 from icp import check_icp
-from email_generator import generate_email
 from summary import generate_summary
 import json
 
