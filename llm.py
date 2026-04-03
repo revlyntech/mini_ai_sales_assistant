@@ -13,7 +13,7 @@ client = OpenAI(
 def call_llm(prompt):
     try:
         response = client.chat.completions.create(
-            model="qwen/qwen3-32b",
+            model="openrouter/free",
             messages=[
                 {"role": "user", "content": prompt}
             ],
