@@ -13,7 +13,7 @@ def run_agent(input_data, custom_icp=None):
     enriched = scrape_website(website)
 
     print("Generating summary...")
-    summary_data = generate_summary(enriched)
+    summary_data = generate_summary(enriched, company)
 
     print("Checking ICP...")
     icp_result = check_icp(enriched, summary_data, custom_icp)
