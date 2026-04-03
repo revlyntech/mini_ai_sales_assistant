@@ -1,13 +1,11 @@
-from llm import call_llm
 import json
 import re
+from llm import call_llm
 
 
 def extract_json(text):
     match = re.search(r"\{.*\}", text, re.DOTALL)
-    if match:
-        return match.group(0)
-    return None
+    return match.group(0) if match else None
 
 
 def generate_summary(data, company_name="Company"):
@@ -16,11 +14,10 @@ def generate_summary(data, company_name="Company"):
     prompt = f"""
     Return ONLY valid JSON.
     No markdown.
-    No explanation.
     No extra text.
 
     Company: {company_name}
-    Website content:
+    Website:
     {content}
 
     {{
@@ -35,30 +32,15 @@ def generate_summary(data, company_name="Company"):
 
     response = call_llm(prompt)
 
-    if not response:
-        return {
-            "company_summary": "Unable to analyze company",
-            "industry": "Unknown",
-            "estimated_size": "Unknown",
-            "location": "Unknown",
-            "revenue_range": "Unknown",
-            "outreach_email": f"Hi {company_name} team, would love to connect."
-        }
-
-    try:
-        return json.loads(response)
-
-    except Exception:
-        extracted = extract_json(response)
-
-        if extracted:
-            try:
-                return json.loads(extracted)
-            except Exception:
-                pass
+    if response:
+        extracted = extract_json(response) or response
+        try:
+            return json.loads(extracted)
+        except:
+            pass
 
     return {
-        "company_summary": data.get("meta_description", "Unable to analyze company"),
+        "company_summary": data.get("meta_description", "Unable to analyze"),
         "industry": "Unknown",
         "estimated_size": "Unknown",
         "location": "Unknown",
