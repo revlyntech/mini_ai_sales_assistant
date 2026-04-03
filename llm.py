@@ -16,10 +16,11 @@ def call_llm(prompt, retries=3):
             print("Trying OpenRouter free router...")
 
             response = client.chat.completions.create(
-                model="openrouter/free",
+                model="stepfun-ai/step-3.5-flash",
                 messages=[
                     {"role": "user", "content": prompt}
                 ]
+                timeout=20
             )
 
             return response.choices[0].message.content
